@@ -1,0 +1,189 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+/* Updated color scheme with new palette - Light mode uses #7C3AED primary, Dark mode uses #8B5CF6 */
+:root {
+  /* Light Mode Colors */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #3b82f6;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #7c3aed;
+  --chart-1: #7c3aed;
+  --chart-2: #3b82f6;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --radius: 0.625rem;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #7c3aed;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #7c3aed;
+
+  /* Additional surface levels */
+  --surface-1: #f8fafc;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8f0;
+
+  /* Text colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-disabled: #94a3b8;
+
+  /* Border variants */
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-heavy: #94a3b8;
+
+  /* Success, Warning colors */
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+}
+
+.dark {
+  /* Dark Mode Colors: chuqur navy / ko'mir */
+  --background: #0a0e1a;
+  --foreground: #e8ecf5;
+  --card: #111827;
+  --card-foreground: #e8ecf5;
+  --popover: #121a2e;
+  --popover-foreground: #e8ecf5;
+  --primary: #7c8cff;
+  --primary-foreground: #0a0e1a;
+  --secondary: #1a2236;
+  --secondary-foreground: #e8ecf5;
+  --muted: #182033;
+  --muted-foreground: #8b95ad;
+  --accent: #1c2740;
+  --accent-foreground: #e8ecf5;
+  --destructive: #f2677a;
+  --destructive-foreground: #ffffff;
+  --border: #1f2a44;
+  --input: #1f2a44;
+  --ring: #7c8cff;
+  --chart-1: #7c8cff;
+  --chart-2: #4fa3ff;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #f2677a;
+  --sidebar: #0d1322;
+  --sidebar-foreground: #e8ecf5;
+  --sidebar-primary: #7c8cff;
+  --sidebar-primary-foreground: #0a0e1a;
+  --sidebar-accent: #172038;
+  --sidebar-accent-foreground: #e8ecf5;
+  --sidebar-border: #1a2540;
+  --sidebar-ring: #7c8cff;
+
+  --surface-1: #111827;
+  --surface-2: #182033;
+  --surface-3: #232f4b;
+  --text-primary: #e8ecf5;
+  --text-secondary: #b6bfd4;
+  --text-tertiary: #8b95ad;
+  --text-disabled: #5d677f;
+  --border-light: #1f2a44;
+  --border-medium: #2c3a5e;
+  --border-heavy: #43547f;
+  --success: #34d399;
+  --success-foreground: #04130d;
+  --warning: #fbbf24;
+  --warning-foreground: #1a1203;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist), "Geist", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Added smooth transitions for color changes */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  a, button, [role="button"], input, textarea, select {
+    transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+/* Ilova fon effekti: juda yengil, faqat dark rejimda ko'rinadi */
+.app-backdrop {
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%),
+    radial-gradient(40rem 24rem at -10% 110%, color-mix(in oklab, #34d399 8%, transparent), transparent 60%);
+}
+.surface { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.surface-glass { background: color-mix(in oklab, var(--card) 80%, transparent); backdrop-filter: blur(10px); border: 1px solid var(--border); }
+.tabular { font-variant-numeric: tabular-nums; }
