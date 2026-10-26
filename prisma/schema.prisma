@@ -1,0 +1,365 @@
+// Just Habits — PostgreSQL sxemasi (Prisma 7)
+// Ulanish manzili prisma.config.ts orqali (DIRECT_URL yoki DATABASE_URL) beriladi.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  BigInt   @id
+  name                String
+  email               String   @unique
+  password            String
+  salt                String?
+  createdAt           DateTime @default(now())
+  isActive            Boolean  @default(true)
+  isAdmin             Boolean  @default(false)
+  timezone            String?
+  avatarUrl           String?
+  firstName           String?
+  lastName            String?
+  publicProfile       Boolean  @default(false)
+
+<<<<<<< HEAD
+  // Google OAuth: Google'ning barqaror hisob identifikatori (id_token'dagi `sub`). Parol bilan ro'yxatdan o'tganlarda null.
+  googleSub           String?  @unique
+  // Telegram Login: Telegram foydalanuvchisining o'zgarmas raqamli ID'si (username emas). Ulanmaganlarda null.
+  telegramId          BigInt?  @unique
+  // Oxirgi muvaffaqiyatli kirish (admin monitoringi uchun)
+  lastLoginAt         DateTime?
+
+=======
+>>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
+  selectedTheme       String?
+  selectedBadge       String?
+  selectedBorder      String?
+  selectedFrame       String?
+  selectedBackground  String?
+
+  // Statistika
+  statsTotalHabits    Int      @default(0)
+  statsCompletedDays  Int      @default(0)
+  statsCurrentStreak  Int      @default(0)
+  statsLongestStreak  Int      @default(0)
+
+  // XP
+  totalXP             Int      @default(0)
+  level               Int      @default(1)
+  rank                Int?
+  weeklyXP            Int      @default(0)
+  monthlyXP           Int      @default(0)
+  weekKey             String?
+  currentXP           Int      @default(0)
+  xpLastUpdated       BigInt   @default(0)
+
+  streakFreezes       Int      @default(1)
+  totalFreezesUsed    Int      @default(0)
+  lastFreezeEarned    BigInt?
+
+  pomodoroTotal       Int      @default(0)
+
+  // Ochilgan mukofotlar va bajarilgan vazifalar (tartib saqlanadi)
+  unlockedAvatars     String[] @default([])
+  unlockedThemes      String[] @default([])
+  unlockedBadges      String[] @default([])
+  unlockedBorders     String[] @default([])
+  unlockedFrames      String[] @default([])
+  unlockedBackgrounds String[] @default([])
+  completedTasks      Int[]    @default([])
+  completedChallenges Int[]    @default([])
+  challengeRewards    Json     @default("[]")
+  plannedHabits       Json     @default("[]")
+
+  // Optimistik parallelizm nazorati (avvalgi _rev)
+  rev                 Int      @default(0)
+
+  habits              Habit[]
+  xpHistory           XpHistory[]
+  pomodoroSessions    PomodoroSession[]
+  activeChallenges    ActiveChallenge[]
+  weeklyTasks         WeeklyTask[]
+  refreshTokens       RefreshToken[]
+  passwordResets      PasswordReset[]
+<<<<<<< HEAD
+  feedback            Feedback[]
+=======
+>>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
+  friendships         Friendship[]    @relation("FriendOwner")
+  friendOf            Friendship[]    @relation("FriendTarget")
+  sentRequests        FriendRequest[] @relation("RequestFrom")
+  receivedRequests    FriendRequest[] @relation("RequestTo")
+
+  @@index([totalXP(sort: Desc), createdAt, id])
+  @@index([weekKey, weeklyXP(sort: Desc)])
+}
+
+model Habit {
+  id                 BigInt   @id
+  userId             BigInt
+  position           Int      @default(0)
+  name               String
+  duration           Int
+  timeHour           Int?
+  timeMinute         Int?
+  notifications      Boolean  @default(false)
+  startDay           Int
+  startMonth         Int
+  startYear          Int
+  startTimestamp     BigInt
+  scheduledStartTime BigInt?
+  why                String   @default("")
+
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days               HabitDay[]
+
+  @@index([userId, position])
+}
+
+model HabitDay {
+  habitId     BigInt
+  dayIndex    Int
+  status      String?   // completed | partial | missed | frozen
+  lockStatus  String?
+  markedAt    BigInt?
+  dateString  String?
+  xpAwarded   Int?
+  locked      Boolean?
+  missReason  String?
+
+  habit       Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@id([habitId, dayIndex])
+}
+
+model XpHistory {
+  id         Int    @id @default(autoincrement())
+  userId     BigInt
+  date       String
+  xpEarned   Int
+  habitId    BigInt
+  dayIndex   Int
+  status     String
+  timestamp  BigInt
+
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, id])
+}
+
+model PomodoroSession {
+  pk         Int    @id @default(autoincrement())
+  userId     BigInt
+  sessionId  BigInt
+  date       String
+  count      Int
+
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model ActiveChallenge {
+  pk            Int      @id @default(autoincrement())
+  userId        BigInt
+  challengeId   Int
+  startedAt     BigInt
+  completedDays Int[]    @default([])
+  isCompleted   Boolean  @default(false)
+  completedAt   BigInt?
+  startDateKey  String?
+  endDateKey    String?
+  attempt       Int?
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Do'stlik ikki tomonlama saqlanadi: (A,B) va (B,A)
+model Friendship {
+  userId    BigInt
+  friendId  BigInt
+
+  user      User   @relation("FriendOwner", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User   @relation("FriendTarget", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@id([userId, friendId])
+  @@index([friendId])
+}
+
+model FriendRequest {
+  fromId  BigInt
+  toId    BigInt
+
+  from    User   @relation("RequestFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to      User   @relation("RequestTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@id([fromId, toId])
+  @@index([toId])
+}
+
+model WeeklyTask {
+  id           String    @id @default(cuid())
+  userId       BigInt
+  title        String
+  description  String    @default("")
+  date         String    // YYYY-MM-DD
+  time         String?   // HH:MM
+  durationMin  Int?
+  category     String
+  priority     String
+  reminderMin  Int?
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date, time])
+  @@index([userId, completed, date])
+}
+
+// Jamoa postlari. Admin (id 0) users jadvalida yo'q, shuning uchun userId'da FK yo'q.
+model CommunityPost {
+  id          BigInt    @id
+  userId      BigInt
+  userName    String
+  userAvatar  String    @default("")
+  title       String    @default("")
+  content     String
+  isPinned    Boolean   @default(false)
+  isAdminPost Boolean   @default(false)
+  imageUrl    String    @default("")
+  linkUrl     String    @default("")
+<<<<<<< HEAD
+  // false = qoralama (faqat admin ko'radi). Mavjud postlar uchun true — ular ko'rinishda qoladi.
+  isPublished Boolean   @default(true)
+=======
+>>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+
+  comments    Comment[]
+  reactions   Reaction[]
+
+  @@index([isPinned(sort: Desc), createdAt(sort: Desc)])
+}
+
+model Comment {
+  id          BigInt        @id
+  postId      BigInt
+  userId      BigInt
+  userName    String
+  userAvatar  String        @default("")
+  content     String
+  createdAt   DateTime      @default(now())
+  isDeleted   Boolean       @default(false)
+
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model Reaction {
+  id          BigInt        @id
+  postId      BigInt
+  userId      BigInt
+  type        String
+  createdAt   DateTime      @default(now())
+
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model RefreshToken {
+  jti        String   @id
+  userId     BigInt
+  tokenHash  String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revoked    Boolean  @default(false)
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id         Int      @id @default(autoincrement())
+  userId     BigInt
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model RateLimit {
+  key        String   @id
+  count      Int
+  expiresAt  DateTime
+
+  @@index([expiresAt])
+}
+<<<<<<< HEAD
+
+// Foydalanuvchi ↔ admin yozishmasi (fikr, taklif, xatolik haqida xabar). Har bir yozuv — bitta suhbat.
+model Feedback {
+  id            String    @id @default(cuid())
+  userId        BigInt
+  type          String    // feedback | suggestion | bug
+  subject       String
+  status        String    @default("open") // open | in_progress | resolved | closed
+  adminUnread   Boolean   @default(true)
+  userUnread    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastMessageAt DateTime  @default(now())
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages      FeedbackMessage[]
+
+  @@index([userId, lastMessageAt(sort: Desc)])
+  @@index([status, lastMessageAt(sort: Desc)])
+}
+
+model FeedbackMessage {
+  id          String    @id @default(cuid())
+  feedbackId  String
+  senderRole  String    // user | admin
+  senderId    BigInt    // admin (.env, id 0) bazada yo'q, shuning uchun FK yo'q
+  body        String
+  createdAt   DateTime  @default(now())
+
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId, createdAt])
+}
+
+// Admin amallari jurnali (rol o'zgarishi, bloklash, post o'chirish va h.k.). Faqat yoziladi, tahrirlanmaydi.
+model AuditLog {
+  id          Int       @id @default(autoincrement())
+  actorId     BigInt
+  actorName   String
+  action      String
+  targetType  String?
+  targetId    String?
+  meta        Json      @default("{}")
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+}
+=======
+>>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
