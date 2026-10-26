@@ -74,11 +74,7 @@ export function rowToUser(r: UserRow): UserDoc {
     ...(r.avatarUrl ? { avatarUrl: r.avatarUrl } : {}),
     ...(r.firstName ? { firstName: r.firstName } : {}),
     ...(r.lastName ? { lastName: r.lastName } : {}),
-<<<<<<< HEAD
     publicProfile: r.publicProfile, googleLinked: r.googleSub != null, telegramLinked: r.telegramId != null,
-=======
-    publicProfile: r.publicProfile,
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     unlockedAvatars: r.unlockedAvatars, unlockedThemes: r.unlockedThemes, unlockedBadges: r.unlockedBadges,
     unlockedBorders: r.unlockedBorders, unlockedFrames: r.unlockedFrames, unlockedBackgrounds: r.unlockedBackgrounds,
     completedTasks: r.completedTasks,

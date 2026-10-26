@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { AuthPage } from "@/components/auth-page"
 import { MainApp } from "@/components/main-app"
-<<<<<<< HEAD
 import type { User } from "@/types/user"
 import { authFetch } from "@/lib/api-client"
 
@@ -24,15 +23,6 @@ const AUTH_ERRORS: Record<string, string> = {
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [authNotice, setAuthNotice] = useState<string | null>(null)
-=======
-import { AdminPanel } from "@/components/admin-panel"
-import type { User } from "@/types/user"
-import { authFetch } from "@/lib/api-client"
-
-export default function Home() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -60,7 +50,6 @@ export default function Home() {
           }
         }
 
-<<<<<<< HEAD
         // Google bilan kirilganda brauzerda id saqlanmagan bo'ladi — sessiya cookie'si orqali serverdan so'raymiz.
         // Faqat Google callback'idan qaytganda (?signed_in=google): oddiy tashrifda /api/auth/me chaqirilmaydi,
         // aks holda sessiyasiz foydalanuvchi har safar 401 TOKEN_EXPIRED oladi.
@@ -78,8 +67,6 @@ export default function Home() {
           }
         }
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
         if (userId === "0") {
           // Admin akkaunt bazada saqlanmaydi (login paytida .env dan hosil bo'ladi),
           // shuning uchun uni alohida kalitdan tiklaymiz.
@@ -93,11 +80,8 @@ export default function Home() {
           const res = await authFetch(`/api/users/${userId}`, { cache: "no-store" })
           if (res.ok) {
             const freshUser = await res.json()
-<<<<<<< HEAD
             // Admin sessiya muddati tugab /admin'dan qaytarilgan bo'lsa, token yangilangach admin panelga qaytaramiz
             if (params.get("admin") === "1" && freshUser.isAdmin) { location.replace("/admin"); return }
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
             setCurrentUser(migrateUserData(freshUser))
             localStorage.setItem("sessionUserId", String(freshUser.id))
           } else {
@@ -107,7 +91,6 @@ export default function Home() {
         }
       } catch (err) {
         console.error("Sessiyani tiklashda xato:", err)
-<<<<<<< HEAD
         setAuthNotice("Server bilan bog'lanib bo'lmadi. Internet yoki serverni tekshirib, sahifani yangilang.")
         // Tarmoq xatosi bo'lsa ham foydalanuvchini majburan chiqarib yubormaymiz -
         // shunchaki keyingi safar qayta urinib ko'radi.
@@ -117,11 +100,6 @@ export default function Home() {
         const ae = sp.get("auth_error")
         if (ae) setAuthNotice(AUTH_ERRORS[ae] ?? "Google bilan kirib bo'lmadi. Qayta urinib ko'ring.")
         if (ae || sp.has("admin") || sp.has("signed_in")) history.replaceState(null, "", location.pathname + location.hash)
-=======
-        // Tarmoq xatosi bo'lsa ham foydalanuvchini majburan chiqarib yubormaymiz -
-        // shunchaki keyingi safar qayta urinib ko'radi.
-      } finally {
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
         localStorage.removeItem("sessionUser")
         sessionStorage.removeItem("sessionUser")
         setIsLoading(false)
@@ -133,10 +111,7 @@ export default function Home() {
 
   const handleSetUser = (user: User) => {
     setCurrentUser(user)
-<<<<<<< HEAD
     setAuthNotice(null)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
     if (user.id === 0) {
       // Admin akkaunt bazada yo'q - alohida kalitda saqlaymiz, DB'ga yozmaymiz
@@ -160,10 +135,6 @@ export default function Home() {
 
   const handleLogout = () => {
     setCurrentUser(null)
-<<<<<<< HEAD
-=======
-    setIsAdmin(false)
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     localStorage.removeItem("sessionUserId")
     localStorage.removeItem("sessionAdmin")
     localStorage.removeItem("sessionUser")
@@ -183,28 +154,16 @@ export default function Home() {
     )
   }
 
-<<<<<<< HEAD
-=======
-  if (isAdmin && currentUser) {
-    return <AdminPanel currentUser={currentUser} onBack={() => setIsAdmin(false)} onLogout={handleLogout} />
-  }
-
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   if (currentUser) {
     return (
       <MainApp
         currentUser={currentUser}
         setCurrentUser={handleSetUser}
-<<<<<<< HEAD
-=======
-        onAdminClick={() => setIsAdmin(true)}
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
         onLogout={handleLogout}
       />
     )
   }
 
-<<<<<<< HEAD
   return (
     <AuthPage
       notice={authNotice}
@@ -215,9 +174,6 @@ export default function Home() {
       }}
     />
   )
-=======
-  return <AuthPage onLogin={(user) => handleSetUser(migrateUserData(user))} />
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 }
 
 function migrateUserData(user: User): User {

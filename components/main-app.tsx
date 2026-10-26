@@ -17,39 +17,25 @@ import { TasksPage } from "@/components/tasks-page"
 import { PomodoroPage } from "@/components/pomodoro-page"
 import { FriendsPage } from "@/components/friends-page"
 import { CommunityPage } from "@/components/community-page"
-<<<<<<< HEAD
 import { FeedbackPage } from "@/components/feedback/feedback-page"
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 import { ProfilePage } from "@/components/profile-page"
 import { HabitTemplatesModal } from "@/components/habit-templates-modal"
 import { AddHabitModal } from "@/components/add-habit-modal"
 import { PlannedHabitsModal } from "@/components/planned-habits-modal"
 import { AchievementAnimation } from "@/components/achievement-animation"
 import { calculateLevel } from "@/lib/xp-system"
-<<<<<<< HEAD
 import { authFetch } from "@/lib/api-client"
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 import { ApiError, completePomodoro, createHabit, removeHabit, setHabitStatus, syncHabits, updateProfile } from "@/lib/client-api"
 
 interface MainAppProps {
   currentUser: User
   setCurrentUser: (user: User) => void
-<<<<<<< HEAD
-=======
-  onAdminClick: () => void
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   onLogout: () => void
 }
 
 const errText = (e: unknown) => (e instanceof ApiError || e instanceof Error ? e.message : "Noma'lum xato")
 
-<<<<<<< HEAD
 export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps) {
-=======
-export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }: MainAppProps) {
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   const { toast } = useToast()
   const [page, setPage] = useState<PageId>("dashboard")
   const [plannerAutoOpen, setPlannerAutoOpen] = useState(false)
@@ -59,10 +45,7 @@ export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }:
   const [showTemplates, setShowTemplates] = useState(false)
   const [showPlanned, setShowPlanned] = useState(false)
   const [hasNewPin, setHasNewPin] = useState(false)
-<<<<<<< HEAD
   const [hasNewReply, setHasNewReply] = useState(false)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   const [anim, setAnim] = useState<"snow" | "confetti" | "sparkles" | "fireworks" | "stars" | null>(null)
 
   // Har doim eng so'nggi foydalanuvchini ishlatish uchun (async qayta chaqiruvlarda eskirgan closure bo'lmasligi uchun)
@@ -137,7 +120,6 @@ export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }:
   }, [currentUser.id])
   useEffect(() => { if (page === "community") setHasNewPin(false) }, [page])
 
-<<<<<<< HEAD
   // ── Admindan yangi javob belgisi (faqat bazadagi foydalanuvchilar uchun) ──
   const checkReplies = useCallback(async () => {
     if (currentUser.id === 0) return
@@ -148,8 +130,6 @@ export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }:
   }, [currentUser.id])
   useEffect(() => { checkReplies(); const id = setInterval(checkReplies, 60_000); return () => clearInterval(id) }, [checkReplies])
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   // ── Pomodoro ──
   const handleTimerComplete = useCallback(async () => {
     setPomRunning(false); setPomLeft(pomDuration * 60)
@@ -229,10 +209,7 @@ export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }:
       case "challenges": return <ChallengesView user={currentUser} onUserChange={applyUser} />
       case "friends": return <FriendsPage currentUser={currentUser} language={language} onBack={back} onUpdateUser={applyUser} />
       case "community": return <CommunityPage language={language} currentUser={currentUser} onBack={back} />
-<<<<<<< HEAD
       case "feedback": return <FeedbackPage onChanged={checkReplies} />
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
       case "profile": return <ProfilePage onClose={back} currentUser={currentUser} onUpdateProfile={handleUpdateProfile} language={language} />
       case "settings": return <SettingsPage user={currentUser} language={language} isDark={isDark} onLanguage={changeLanguage} onToggleTheme={toggleTheme} onTimezone={changeTimezone} onLogout={onLogout} />
       default: return <DashboardPage user={currentUser} onNavigate={navigate} onAddHabit={() => setShowAdd(true)} onAddTask={() => { setPlannerAutoOpen(true); navigate("planner") }} />
@@ -242,15 +219,9 @@ export function MainApp({ currentUser, setCurrentUser, onAdminClick, onLogout }:
   return (
     <>
       {anim && <AchievementAnimation type={anim} />}
-<<<<<<< HEAD
       <AppShell page={page} onNavigate={(p) => { if (p !== "planner") setPlannerAutoOpen(false); navigate(p) }} isDark={isDark} onToggleTheme={toggleTheme} onLogout={onLogout} onAdmin={() => location.assign("/admin")}
         user={{ name: displayName, level: calculateLevel(currentUser.xpData?.totalXP || 0), avatarUrl: currentUser.avatarUrl, isAdmin: !!currentUser.isAdmin }}
         pomodoro={{ running: pomRunning, label: fmt(pomLeft) }} badges={{ community: hasNewPin, feedback: hasNewReply }}>
-=======
-      <AppShell page={page} onNavigate={(p) => { if (p !== "planner") setPlannerAutoOpen(false); navigate(p) }} isDark={isDark} onToggleTheme={toggleTheme} onLogout={onLogout} onAdmin={onAdminClick}
-        user={{ name: displayName, level: calculateLevel(currentUser.xpData?.totalXP || 0), avatarUrl: currentUser.avatarUrl, isAdmin: !!currentUser.isAdmin }}
-        pomodoro={{ running: pomRunning, label: fmt(pomLeft) }} badges={{ community: hasNewPin }}>
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
         {content}
       </AppShell>
       {showTemplates && <HabitTemplatesModal language={language} onClose={() => setShowTemplates(false)} onAdd={(h) => { addHabit(h); setShowTemplates(false) }} />}

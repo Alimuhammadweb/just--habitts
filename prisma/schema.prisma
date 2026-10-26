@@ -25,7 +25,6 @@ model User {
   lastName            String?
   publicProfile       Boolean  @default(false)
 
-<<<<<<< HEAD
   // Google OAuth: Google'ning barqaror hisob identifikatori (id_token'dagi `sub`). Parol bilan ro'yxatdan o'tganlarda null.
   googleSub           String?  @unique
   // Telegram Login: Telegram foydalanuvchisining o'zgarmas raqamli ID'si (username emas). Ulanmaganlarda null.
@@ -33,8 +32,6 @@ model User {
   // Oxirgi muvaffaqiyatli kirish (admin monitoringi uchun)
   lastLoginAt         DateTime?
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   selectedTheme       String?
   selectedBadge       String?
   selectedBorder      String?
@@ -85,10 +82,7 @@ model User {
   weeklyTasks         WeeklyTask[]
   refreshTokens       RefreshToken[]
   passwordResets      PasswordReset[]
-<<<<<<< HEAD
   feedback            Feedback[]
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   friendships         Friendship[]    @relation("FriendOwner")
   friendOf            Friendship[]    @relation("FriendTarget")
   sentRequests        FriendRequest[] @relation("RequestFrom")
@@ -237,11 +231,8 @@ model CommunityPost {
   isAdminPost Boolean   @default(false)
   imageUrl    String    @default("")
   linkUrl     String    @default("")
-<<<<<<< HEAD
   // false = qoralama (faqat admin ko'radi). Mavjud postlar uchun true — ular ko'rinishda qoladi.
   isPublished Boolean   @default(true)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now())
 
@@ -312,7 +303,6 @@ model RateLimit {
 
   @@index([expiresAt])
 }
-<<<<<<< HEAD
 
 // Foydalanuvchi ↔ admin yozishmasi (fikr, taklif, xatolik haqida xabar). Har bir yozuv — bitta suhbat.
 model Feedback {
@@ -361,5 +351,3 @@ model AuditLog {
   @@index([createdAt(sort: Desc)])
   @@index([action, createdAt(sort: Desc)])
 }
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d

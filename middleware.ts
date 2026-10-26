@@ -12,17 +12,12 @@ const ALLOWED_ORIGINS = [
     : []),
 ]
 
-<<<<<<< HEAD
 // `next dev` paytida port band bo'lsa Next 3001, 3002… ni tanlaydi — lokal originlarning HAMMASIGA ruxsat (faqat productionda emas).
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{2,5})?$/
 
 function isAllowedOrigin(origin: string | null): origin is string {
   if (!origin) return false
   if (process.env.NODE_ENV !== "production" && LOCAL_ORIGIN.test(origin)) return true
-=======
-function isAllowedOrigin(origin: string | null): origin is string {
-  if (!origin) return false
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   return ALLOWED_ORIGINS.includes(origin)
 }
 
@@ -48,12 +43,9 @@ const PUBLIC_PATHS: { path: string; methods?: string[] }[] = [
   { path: "/api/auth/refresh" },
   { path: "/api/health" },
   { path: "/api/auth/config" },
-<<<<<<< HEAD
   { path: "/api/auth/google/start", methods: ["GET"] }, // Google'ga yo'naltirish
   { path: "/api/auth/google/callback", methods: ["GET"] }, // Google qaytaradigan manzil (state/PKCE o'zida tekshiriladi)
   { path: "/api/auth/telegram", methods: ["POST"] }, // Telegram Login Widget (imzo serverda tekshiriladi)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   { path: "/api/auth/forgot", methods: ["POST"] },
   { path: "/api/auth/reset", methods: ["POST"] },
   { path: "/api/users", methods: ["POST"] }, // ro'yxatdan o'tish

@@ -577,11 +577,7 @@ export function CommunityPage({ language, currentUser, onBack }: CommunityPagePr
             >
               <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             </Button>
-<<<<<<< HEAD
             {currentUser.isAdmin && (
-=======
-            {true && (
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
               <Button size="sm" onClick={() => setShowCreatePost(true)} className="h-8 text-xs gap-1">
                 <Plus className="h-3.5 w-3.5" />
                 {L.newPost}
@@ -593,11 +589,7 @@ export function CommunityPage({ language, currentUser, onBack }: CommunityPagePr
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-4 space-y-4">
         {/* Info banner */}
-<<<<<<< HEAD
         {!currentUser.isAdmin && (
-=======
-        {false && (
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sm text-blue-300">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-blue-400" />
             <p>{L.onlyAdmin}</p>
@@ -605,11 +597,7 @@ export function CommunityPage({ language, currentUser, onBack }: CommunityPagePr
         )}
 
         {/* Create post form */}
-<<<<<<< HEAD
         {currentUser.isAdmin && showCreatePost && (
-=======
-        {showCreatePost && (
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
           <Card className="p-4 border-2 border-primary/40 bg-primary/5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-sm">{L.newPost}</h3>

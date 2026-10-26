@@ -1,10 +1,7 @@
 import type { NextRequest } from "next/server"
 import { z } from "zod"
 import { getSession } from "@/lib/auth"
-<<<<<<< HEAD
 import { requireAdmin } from "@/lib/server/admin"
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 import { fail, json, readJson, dbErrorResponse } from "@/lib/server/api"
 import { listAllUsers, sanitizeUser, createUserRecord, updateUserColumns } from "@/lib/server/user-store"
 import { db, big, prismaCode, newNumericId } from "@/lib/prisma"
@@ -15,14 +12,8 @@ import type { User } from "@/types/user"
 
 // GET - faqat admin paneli uchun to'liq ro'yxat. Oddiy foydalanuvchilar uchun /api/leaderboard va /api/friends bor.
 export async function GET(request: NextRequest) {
-<<<<<<< HEAD
   const auth = await requireAdmin(request) // adminlik HAR SAFAR bazadan tasdiqlanadi
   if ("response" in auth) return auth.response
-=======
-  const session = getSession(request)
-  if (!session) return fail(401, "Avtorizatsiyadan o'tilmagan", "UNAUTHORIZED")
-  if (!session.isAdmin) return fail(403, "Faqat admin uchun")
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   try {
     const users = await listAllUsers()
     return json(users.map((u) => sanitizeUser(u)))
@@ -98,11 +89,7 @@ const ProfileUpdate = z.object({
   name: z.string().trim().min(1).max(60).optional(),
   firstName: z.string().trim().max(60).optional(),
   lastName: z.string().trim().max(60).optional(),
-<<<<<<< HEAD
   avatarUrl: z.union([z.literal(""), url]).optional(), // "" = rasmni olib tashlash
-=======
-  avatarUrl: url.optional(),
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   publicProfile: z.boolean().optional(),
   timezone: z.string().refine(isValidTimezone, "Vaqt zonasi noto'g'ri").optional(),
   selectedTheme: short.optional(), selectedBadge: short.optional(), selectedBorder: short.optional(),
@@ -117,22 +104,8 @@ export async function PUT(request: NextRequest) {
   if (!body || typeof body !== "object") return fail(400, "So'rov tanasi noto'g'ri")
 
   try {
-<<<<<<< HEAD
     // Eslatma: boshqa foydalanuvchini tahrirlash (bloklash, rol) endi faqat /api/admin/users/[id] orqali — u yerda
     // adminlik bazadan tasdiqlanadi va amal jurnalga yoziladi. Bu endpoint FAQAT o'z profilingiz uchun.
-=======
-    if (session.isAdmin && body.id !== undefined && Number(body.id) !== session.id) {
-      // Admin boshqa foydalanuvchini tahrirlashi: faqat xavfsiz maydonlar (isActive va profil)
-      const { isActive, name } = body as { isActive?: unknown; name?: unknown }
-      const set: Record<string, unknown> = {}
-      if (typeof isActive === "boolean") set.isActive = isActive
-      if (typeof name === "string" && name.trim()) set.name = name.trim().slice(0, 60)
-      if (!Object.keys(set).length) return fail(400, "O'zgartirish uchun maydon yo'q")
-      await updateUserColumns(Number(body.id), set)
-      return json({ success: true })
-    }
-
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     // Mijoz boshqa maydonlarni (id, xpData, habits, ...) yuborgan bo'lsa jimgina e'tiborsiz qoldiramiz -
     // eski mijoz versiyalari butun obyektni yuborishi mumkin - faqat ruxsat etilganlarini olamiz.
     const allowedKeys = Object.keys(ProfileUpdate.shape)
@@ -145,10 +118,7 @@ export async function PUT(request: NextRequest) {
     const { plannedHabits, ...cols } = parsed.data
     await updateUserColumns(session.id, {
       ...cols,
-<<<<<<< HEAD
       ...(cols.avatarUrl === "" ? { avatarUrl: null } : {}),
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
       ...(plannedHabits !== undefined ? { plannedHabits: plannedHabits as never } : {}),
     })
     return json({ success: true })

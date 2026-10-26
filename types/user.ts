@@ -15,11 +15,8 @@ export interface User {
   firstName?: string
   lastName?: string
   publicProfile: boolean
-<<<<<<< HEAD
   telegramLinked?: boolean // Telegram ulanganmi (faqat o'qish uchun)
   googleLinked?: boolean // Google hisobi ulanganmi (faqat o'qish uchun; server qiymatini mijoz o'zgartira olmaydi)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   unlockedAvatars: string[]
   unlockedThemes: string[]
   unlockedBadges: string[]

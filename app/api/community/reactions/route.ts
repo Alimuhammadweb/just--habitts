@@ -16,13 +16,8 @@ export async function POST(request: NextRequest) {
     const { postId, type } = parsed.data
     const userId = session.id // mijozdan emas, sessiyadan
 
-<<<<<<< HEAD
     const post = await db().communityPost.findUnique({ where: { id: big(postId) }, select: { id: true, isPublished: true } })
     if (!post || !post.isPublished) return NextResponse.json({ error: "Post not found" }, { status: 404 })
-=======
-    const post = await db().communityPost.findUnique({ where: { id: big(postId) }, select: { id: true } })
-    if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 })
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
     const where = { postId_userId: { postId: big(postId), userId: big(userId) } }
     const existing = await db().reaction.findUnique({ where })

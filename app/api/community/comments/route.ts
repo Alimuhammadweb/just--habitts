@@ -2,10 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { db, big, newNumericId } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
-<<<<<<< HEAD
 import { isVerifiedAdmin } from "@/lib/server/admin"
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
 const NewComment = z.object({ postId: z.number().int(), content: z.string().trim().min(1).max(2000) })
 
@@ -20,13 +17,8 @@ export async function POST(request: NextRequest) {
     const { postId, content } = parsed.data
     const userId = session.id // mijozdan emas, sessiyadan
 
-<<<<<<< HEAD
     const post = await db().communityPost.findUnique({ where: { id: big(postId) }, select: { id: true, isPublished: true } })
     if (!post || !post.isPublished) return NextResponse.json({ error: "Post not found" }, { status: 404 })
-=======
-    const post = await db().communityPost.findUnique({ where: { id: big(postId) }, select: { id: true } })
-    if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 })
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
     // Spam checking - bir daqiqada 5 tadan ko'p comment qo'ymaslik
     const recent = await db().comment.count({
@@ -79,11 +71,7 @@ export async function DELETE(request: NextRequest) {
     if (!comment) return NextResponse.json({ error: "Comment not found" }, { status: 404 })
 
     // Faqat o'z commentini yoki admin o'chirishi mumkin (sessiyadan tasdiqlangan)
-<<<<<<< HEAD
     if (Number(comment.userId) !== session.id && !(session.isAdmin && (await isVerifiedAdmin(session)))) {
-=======
-    if (Number(comment.userId) !== session.id && !session.isAdmin) {
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 

@@ -1,9 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client"
-<<<<<<< HEAD
 import { db, big, newNumericId } from "@/lib/prisma"
 import { audit, type AdminActor } from "@/lib/server/admin"
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
 export const postInclude = {
   comments: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
@@ -17,10 +14,7 @@ export function postToClient(p: PostRow) {
   return {
     id: Number(p.id), userId: Number(p.userId), userName: p.userName, userAvatar: p.userAvatar,
     title: p.title, content: p.content, isPinned: p.isPinned, isAdminPost: p.isAdminPost,
-<<<<<<< HEAD
     isPublished: p.isPublished,
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     imageUrl: p.imageUrl, linkUrl: p.linkUrl,
     createdAt: p.createdAt.toISOString(), updatedAt: p.updatedAt.toISOString(),
     comments: p.comments.map((c) => ({
@@ -32,7 +26,6 @@ export function postToClient(p: PostRow) {
     })),
   }
 }
-<<<<<<< HEAD
 
 // ── Faqat ADMIN chaqiradigan amallar. Chaqiruvchi route requireAdmin() bilan actor'ni tasdiqlagan bo'lishi shart. ──
 
@@ -87,5 +80,3 @@ export async function deleteOfficialPost(actor: AdminActor, postId: number) {
   await audit(actor, "community.post.delete", { type: "post", id: String(postId) }, { title: post.title.slice(0, 80), authorId: Number(post.userId) })
   return true
 }
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d

@@ -1,40 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { findUserByEmail, sanitizeUser } from "@/lib/server/user-store"
 import { updateUserColumns } from "@/lib/server/user-store"
-<<<<<<< HEAD
 import { buildEnvAdminUser, issueTokens, markLogin } from "@/lib/server/session"
 import { hashPassword, verifyPassword, burnTime } from "@/lib/server/password"
 import { hit, clear, clientIp } from "@/lib/server/rate-limit"
-=======
-import { hashPassword, verifyPassword, burnTime } from "@/lib/server/password"
-import { hit, clear, clientIp } from "@/lib/server/rate-limit"
-import type { User } from "@/types/user"
-import {
-  createAccessToken,
-  createRefreshToken,
-  ACCESS_COOKIE,
-  REFRESH_COOKIE,
-  ACCESS_COOKIE_OPTIONS,
-  REFRESH_COOKIE_OPTIONS,
-} from "@/lib/auth"
-import { newTokenId } from "@/lib/auth-refresh"
-import { storeRefreshToken } from "@/lib/refresh-tokens"
-
-const REFRESH_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
-
-async function issueTokens(res: NextResponse, id: number, isAdmin: boolean) {
-  const access = await createAccessToken({ id, isAdmin })
-  const jti = newTokenId()
-  const refresh = await createRefreshToken({ id, isAdmin }, jti)
-  // Admin (id 0) bazada saqlanmagani uchun refresh tokenini ham
-  // DB'ga yozmaymiz - faqat imzosi orqali tekshiriladi.
-  if (id !== 0) {
-    await storeRefreshToken(jti, id, refresh, REFRESH_MAX_AGE_SECONDS)
-  }
-  res.cookies.set(ACCESS_COOKIE, access, ACCESS_COOKIE_OPTIONS)
-  res.cookies.set(REFRESH_COOKIE, refresh, REFRESH_COOKIE_OPTIONS)
-}
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,21 +36,7 @@ export async function POST(request: NextRequest) {
     } catch { /* limiter ishlamasa, kirishni to'smaymiz */ }
 
     if (adminAllowed && normalizedEmail === adminEmail && password === adminPassword) {
-<<<<<<< HEAD
       const adminUser = buildEnvAdminUser()
-=======
-      const adminUser: User = {
-        id: 0, name: "Admin", email: adminEmail, password: "",
-        createdAt: new Date().toISOString(), isActive: true, isAdmin: true,
-        habits: [], stats: { totalHabits: 0, completedDays: 0, currentStreak: 0, longestStreak: 0 },
-        pomodoroData: { sessions: [], totalPomodoros: 0 },
-        xpData: { totalXP: 0, level: 1, rank: null, weeklyXP: 0, monthlyXP: 0, xpHistory: [], currentXP: 0, lastUpdated: Date.now() },
-        publicProfile: false, unlockedAvatars: [], unlockedThemes: [], unlockedBadges: [],
-        unlockedBorders: [], unlockedFrames: [], unlockedBackgrounds: [],
-        completedTasks: [], plannedHabits: [], streakFreezes: 3, totalFreezesUsed: 0,
-        friends: [], friendRequests: [], sentRequests: [],
-      }
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
       const res = NextResponse.json(adminUser)
       await issueTokens(res, 0, true)
       return res
@@ -128,10 +83,7 @@ export async function POST(request: NextRequest) {
 
     const res = NextResponse.json(cleanUser)
     await issueTokens(res, user.id, Boolean(user.isAdmin))
-<<<<<<< HEAD
     await markLogin(user.id)
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     return res
 
   } catch (error) {

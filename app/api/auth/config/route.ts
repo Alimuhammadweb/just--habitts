@@ -1,5 +1,4 @@
 import { json } from "@/lib/server/api"
-<<<<<<< HEAD
 import { googleConfigured } from "@/lib/server/google"
 import { telegramBotUsername, telegramConfigured } from "@/lib/server/telegram"
 
@@ -11,10 +10,4 @@ export async function GET() {
     // Faqat bot username (ochiq ma'lumot); token HECH QACHON chiqmaydi
     telegram: telegramConfigured() ? telegramBotUsername() : null,
   })
-=======
-
-// Mijoz qaysi imkoniyatlar sozlanganini biladi (parolni tiklash havolasi faqat to'liq sozlangan bo'lsa ko'rsatiladi).
-export async function GET() {
-  return json({ passwordReset: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM && process.env.APP_URL) })
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 }

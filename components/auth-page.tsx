@@ -1,11 +1,7 @@
 "use client"
-<<<<<<< HEAD
 
 import { useEffect, useState } from "react"
 import { TelegramLoginButton, type TelegramAuthPayload } from "@/components/telegram-login-button"
-=======
-import { useEffect, useState } from "react"
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 import { motion, useReducedMotion } from "framer-motion"
 import { CalendarDays, Check, Eye, EyeOff, Flame, Loader2, MailCheck, Trophy, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -40,11 +36,7 @@ function PasswordField({ id, label, value, onChange, error, autoComplete, hint }
   )
 }
 
-<<<<<<< HEAD
 export function AuthPage({ onLogin, notice }: { onLogin: (user: User) => void; notice?: string | null }) {
-=======
-export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   const reduce = useReducedMotion()
   const [mode, setMode] = useState<Mode>("login")
   const [name, setName] = useState(""); const [email, setEmail] = useState("")
@@ -54,17 +46,11 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
   const [info, setInfo] = useState<string | null>(null)
   const [resetEnabled, setResetEnabled] = useState(false)
   const [resetToken, setResetToken] = useState<string | null>(null)
-<<<<<<< HEAD
   const [googleEnabled, setGoogleEnabled] = useState(false)
   const [telegramBot, setTelegramBot] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/auth/config").then((r) => r.json()).then((c) => { setResetEnabled(!!c.passwordReset); setGoogleEnabled(!!c.google); setTelegramBot(typeof c.telegram === "string" && c.telegram ? c.telegram : null) }).catch(() => {})
-=======
-
-  useEffect(() => {
-    fetch("/api/auth/config").then((r) => r.json()).then((c) => setResetEnabled(!!c.passwordReset)).catch(() => {})
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
     const t = new URLSearchParams(window.location.search).get("reset")
     if (t && /^[a-f0-9]{64}$/.test(t)) { setResetToken(t); setMode("reset") }
   }, [])
@@ -88,7 +74,6 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
     return { res, data }
   }
 
-<<<<<<< HEAD
   // Telegram vidjeti imzolangan ma'lumot qaytaradi — uni serverda tekshirtiramiz (brauzerga ishonilmaydi)
   async function telegramLogin(payload: TelegramAuthPayload) {
     setErrors({}); setInfo(null)
@@ -101,8 +86,6 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
     }
   }
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   async function login() {
     const { res, data } = await post("/api/auth/login", { email: email.trim(), password })
     if (!res.ok) {
@@ -171,10 +154,7 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
 
           <form onSubmit={submit} noValidate className="mt-6 space-y-4">
             {info && <div role="status" className="flex gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200"><MailCheck className="size-4 mt-0.5 shrink-0" />{info}</div>}
-<<<<<<< HEAD
             {notice && !errors.form && <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{notice}</div>}
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
             {errors.form && <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{errors.form}</div>}
 
             {mode === "register" && (
@@ -200,7 +180,6 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
             <Button type="submit" size="lg" className="w-full h-11" disabled={loading}>{loading && <Loader2 className="animate-spin" />}{loading ? "Iltimos, kuting…" : submitLabel}</Button>
           </form>
 
-<<<<<<< HEAD
           {(googleEnabled || telegramBot) && (mode === "login" || mode === "register") && (
             <>
               <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />yoki<span className="h-px flex-1 bg-border" /></div>
@@ -216,8 +195,6 @@ export function AuthPage({ onLogin }: { onLogin: (user: User) => void }) {
             </>
           )}
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {mode === "login" ? <>Hisobingiz yo'qmi? <button onClick={() => switchMode("register")} className="text-primary hover:underline font-medium">Ro'yxatdan o'ting</button></>
               : <>{mode === "register" ? "Hisobingiz bormi? " : ""}<button onClick={() => switchMode("login")} className="text-primary hover:underline font-medium">{mode === "register" ? "Kirish" : "Kirishga qaytish"}</button></>}

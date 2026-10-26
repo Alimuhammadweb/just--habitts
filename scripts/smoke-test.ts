@@ -116,7 +116,6 @@ async function main() {
   const lbw = await A.req("GET", "/api/leaderboard?period=week")
   ok(lbw.status === 200 && lbw.data.entries.length === 1, "haftalik reyting")
 
-<<<<<<< HEAD
   // Jamoa: rasmiy post FAQAT admin yaratadi (oddiy foydalanuvchi 403, sessiyasiz 401)
   const AD = new Client()
   const adm = await AD.req("POST", "/api/auth/login", { email: process.env.ADMIN_EMAIL || "admin@test.local", password: process.env.ADMIN_PASSWORD || "AdminPass123!" })
@@ -125,11 +124,6 @@ async function main() {
   ok((await A.req("POST", "/api/community/posts", { content: "Salom jamoa", userName: "HACKER", isAdmin: true, userId: 0 })).status === 403, "oddiy foydalanuvchi post yarata olmaydi (isAdmin:true yuborsa ham) → 403")
   const p1 = await AD.req("POST", "/api/community/posts", { content: "Salom jamoa", userName: "HACKER", userId: 5 })
   ok(p1.status === 201 && p1.data.userName === "Admin" && p1.data.isAdminPost === true && p1.data.userId === 0, "admin posti: ism/muallif sessiyadan (soxtalashtirib bo'lmaydi)")
-=======
-  // Jamoa
-  const p1 = await A.req("POST", "/api/community/posts", { content: "Salom jamoa", userName: "HACKER", isAdmin: true, userId: 0 })
-  ok(p1.status === 201 && p1.data.userName === "Ali" && p1.data.isAdminPost === false && p1.data.userId === idA, "post: ism/admin/userId sessiyadan (soxtalashtirib bo'lmaydi)")
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   const pid = p1.data.id as number
   const c1 = await B.req("POST", "/api/community/comments", { postId: pid, content: "Zo'r!" })
   ok(c1.status === 201 && c1.data.userName === "Vali", "izoh qo'shildi")
@@ -140,21 +134,11 @@ async function main() {
   const feed = await A.req("GET", "/api/community/posts")
   ok(feed.data[0].id === pid && feed.data[0].comments.length === 1 && feed.data[0].reactions.length >= 1, "lenta: post + izoh + reaksiya")
   ok((await A.req("DELETE", `/api/community/comments?postId=${pid}&commentId=${c1.data.id}`)).status === 403, "A B'ning izohini o'chira olmaydi")
-<<<<<<< HEAD
   ok((await B.req("DELETE", `/api/community/posts?postId=${pid}`)).status === 403, "oddiy foydalanuvchi postni o'chira olmaydi")
-=======
-  ok((await B.req("DELETE", `/api/community/posts?postId=${pid}`)).status === 403, "B A'ning postini o'chira olmaydi")
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   ok((await B.req("PATCH", "/api/community/posts", { postId: pid, updates: { isPinned: true } })).status === 403, "admin bo'lmagan PATCH rad etildi")
   ok((await B.req("DELETE", `/api/community/comments?postId=${pid}&commentId=${c1.data.id}`)).status === 200, "o'z izohini o'chirish")
 
   // Admin
-<<<<<<< HEAD
-=======
-  const AD = new Client()
-  const adm = await AD.req("POST", "/api/auth/login", { email: process.env.ADMIN_EMAIL || "admin@test.local", password: process.env.ADMIN_PASSWORD || "AdminPass123!" })
-  ok(adm.status === 200 && adm.data.isAdmin === true, "admin login (.env dan)")
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   ok((await AD.req("GET", "/api/users")).data.length === 2, "admin: barcha foydalanuvchilar")
   const ap = await AD.req("POST", "/api/community/posts", { title: "E'lon", content: "Admin e'loni" })
   ok(ap.data.isAdminPost === true && ap.data.isPinned === true && ap.data.userName === "Admin", "admin posti pinned")

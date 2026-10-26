@@ -21,11 +21,7 @@ export async function POST(request: NextRequest) {
     if (!validAvatar(avatarData)) {
       return NextResponse.json({ error: "Avatar manzili noto'g'ri" }, { status: 400 })
     }
-<<<<<<< HEAD
     if (userId !== session.id) { // profil tahriri adminlik huquqiga bog'liq emas: faqat o'zingiznikini
-=======
-    if (!session.isAdmin && userId !== session.id) {
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
       return NextResponse.json({ error: "Ruxsat yo'q" }, { status: 403 })
     }
 

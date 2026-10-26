@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 import { BarChart3, CalendarDays, LayoutDashboard, LifeBuoy, ListChecks, MessageCircle, Settings, Swords, Target, Timer, Trophy, User, Users, type LucideIcon } from "lucide-react"
 
 export type PageId =
   | "dashboard" | "habits" | "planner" | "tasks" | "pomodoro" | "statistics" | "leaderboard"
   | "challenges" | "friends" | "community" | "feedback" | "profile" | "settings"
-=======
-import { BarChart3, CalendarDays, LayoutDashboard, ListChecks, MessageCircle, Settings, Swords, Target, Timer, Trophy, User, Users, type LucideIcon } from "lucide-react"
-
-export type PageId =
-  | "dashboard" | "habits" | "planner" | "tasks" | "pomodoro" | "statistics" | "leaderboard"
-  | "challenges" | "friends" | "community" | "profile" | "settings"
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
 export interface NavItem { id: PageId; label: string; icon: LucideIcon; group: "main" | "more" }
 
@@ -25,10 +17,7 @@ export const NAV: NavItem[] = [
   { id: "challenges", label: "Chelenglar", icon: Swords, group: "main" },
   { id: "friends", label: "Do'stlar", icon: Users, group: "more" },
   { id: "community", label: "Jamiyat", icon: MessageCircle, group: "more" },
-<<<<<<< HEAD
   { id: "feedback", label: "Fikr-mulohaza", icon: LifeBuoy, group: "more" },
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   { id: "profile", label: "Profil", icon: User, group: "more" },
   { id: "settings", label: "Sozlamalar", icon: Settings, group: "more" },
 ]

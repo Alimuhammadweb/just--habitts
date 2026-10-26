@@ -9,12 +9,8 @@ import {
   verifyRefreshToken,
 } from "@/lib/auth"
 import { newTokenId } from "@/lib/auth-refresh"
-<<<<<<< HEAD
 import { isRefreshTokenValid, rotateRefreshToken, revokeAllRefreshTokensForUser } from "@/lib/refresh-tokens"
 import { db, big } from "@/lib/prisma"
-=======
-import { isRefreshTokenValid, rotateRefreshToken } from "@/lib/refresh-tokens"
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
 const REFRESH_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
@@ -47,7 +43,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-<<<<<<< HEAD
     // Rol va faollik holati tokendan emas, HAR SAFAR bazadan olinadi: adminligi olib tashlangan yoki
     // bloklangan foydalanuvchi eski refresh token bilan huquqini yangilab ololmaydi.
     let isAdmin = payload.isAdmin
@@ -68,11 +63,6 @@ export async function POST(request: NextRequest) {
     const newAccess = await createAccessToken({ id: payload.id, isAdmin })
     const newJti = newTokenId()
     const newRefresh = await createRefreshToken({ id: payload.id, isAdmin }, newJti)
-=======
-    const newAccess = await createAccessToken({ id: payload.id, isAdmin: payload.isAdmin })
-    const newJti = newTokenId()
-    const newRefresh = await createRefreshToken({ id: payload.id, isAdmin: payload.isAdmin }, newJti)
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 
     if (payload.id !== 0) {
       try {

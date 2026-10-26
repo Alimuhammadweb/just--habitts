@@ -97,7 +97,6 @@ export async function createRefreshToken(payload: SessionPayload, jti: string): 
     .sign(getSecretKey())
 }
 
-<<<<<<< HEAD
 // ---------- OAuth holat tokeni (Google) ----------
 // Google'ga yo'naltirishdan oldin state/nonce/PKCE verifier shu imzolangan, qisqa muddatli
 // httpOnly cookie'da saqlanadi - callback'da mijoz yuborgan qiymatlar shu bilan solishtiriladi.
@@ -140,8 +139,6 @@ export const OAUTH_COOKIE_OPTIONS = {
   maxAge: OAUTH_MAX_AGE_SECONDS,
 }
 
-=======
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
 export const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
