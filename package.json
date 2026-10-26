@@ -18,12 +18,8 @@
     "db:studio": "prisma studio",
     "db:import": "tsx scripts/import-mongo-to-postgres.ts",
     "db:import:dry": "tsx scripts/import-mongo-to-postgres.ts --dry-run",
-<<<<<<< HEAD
     "db:validate": "tsx scripts/import-mongo-to-postgres.ts --validate-only",
     "audit:admins": "tsx scripts/audit-admins.ts"
-=======
-    "db:validate": "tsx scripts/import-mongo-to-postgres.ts --validate-only"
->>>>>>> 91abbcb2771aae368d94acad74dc30bbf329c25d
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
