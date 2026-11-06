@@ -24,8 +24,9 @@ import { AddHabitModal } from "@/components/add-habit-modal"
 import { PlannedHabitsModal } from "@/components/planned-habits-modal"
 import { AchievementAnimation } from "@/components/achievement-animation"
 import { calculateLevel } from "@/lib/xp-system"
+import { usePomodoro } from "@/hooks/use-pomodoro"
 import { authFetch } from "@/lib/api-client"
-import { ApiError, completePomodoro, createHabit, removeHabit, setHabitStatus, syncHabits, updateProfile } from "@/lib/client-api"
+import { ApiError, createHabit, removeHabit, setHabitStatus, syncHabits, updateProfile } from "@/lib/client-api"
 
 interface MainAppProps {
   currentUser: User
@@ -56,11 +57,13 @@ export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps)
   const habits = currentUser.habits || []
   const plannedHabits = currentUser.plannedHabits || []
 
-  // ── Pomodoro taymeri (holati brauzerda; yakunlangan seans serverda yoziladi) ──
-  const [pomRunning, setPomRunning] = useState(false)
-  const [pomLeft, setPomLeft] = useState(25 * 60)
-  const [pomDuration, setPomDuration] = useState(25)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // ── Pomodoro: holat, sozlamalar va statistika serverda (PostgreSQL); brauzer faqat ko'rsatadi ──
+  const pom = usePomodoro({
+    enabled: currentUser.id !== 0,
+    onUser: applyUser,
+    onCompleted: ({ mode, credited }) => toast(mode === "focus" ? { title: credited ? "Pomodoro yakunlandi 🍅" : "Seans yakunlandi" } : { title: "Tanaffus tugadi", description: "Yangi fokus seansini boshlashingiz mumkin." }),
+    onError: (message) => toast({ title: "Pomodoro xatosi", description: message, variant: "destructive" }),
+  })
 
   // ── Navigatsiya (URL hash bilan sinxron: #planner) ──
   const navigate = useCallback((p: PageId) => { setPage(p); if (location.hash !== `#${p}`) history.pushState(null, "", `#${p}`) }, [])
@@ -70,16 +73,12 @@ export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps)
     return () => { window.removeEventListener("hashchange", read); window.removeEventListener("popstate", read) }
   }, [])
 
-  // ── Boshlang'ich: tema, til, taymer, serverdan sinxronlash ──
+  // ── Boshlang'ich: tema, til, serverdan sinxronlash ──
   useEffect(() => {
     const dark = localStorage.getItem("habit-theme") !== "light"
     setIsDark(dark); document.documentElement.classList.toggle("dark", dark)
     const lang = localStorage.getItem("habit-language") as Language | null
     if (lang && ["uz", "ru", "en"].includes(lang)) setLanguage(lang)
-    try {
-      const st = JSON.parse(localStorage.getItem(`timer_${currentUser.id}`) || "null")
-      if (st) { setPomRunning(!!st.isRunning); setPomLeft(st.timeLeft); setPomDuration(st.duration || 25) }
-    } catch { /* e'tiborsiz */ }
     // O'tgan kunlarni yopish, vaqt zonasi, davr XP - hammasi serverda (idempotent)
     if (currentUser.id !== 0) {
       syncHabits().then((r) => applyUser(r.user)).catch((e) => console.warn("[sync]", errText(e)))
@@ -130,32 +129,7 @@ export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps)
   }, [currentUser.id])
   useEffect(() => { checkReplies(); const id = setInterval(checkReplies, 60_000); return () => clearInterval(id) }, [checkReplies])
 
-  // ── Pomodoro ──
-  const handleTimerComplete = useCallback(async () => {
-    setPomRunning(false); setPomLeft(pomDuration * 60)
-    localStorage.setItem(`timer_${userRef.current.id}`, JSON.stringify({ timeLeft: pomDuration * 60, isRunning: false, duration: pomDuration }))
-    try { const r = await completePomodoro(); applyUser(r.user); toast({ title: "Pomodoro yakunlandi 🍅" }) }
-    catch (e) { toast({ title: "Pomodoro saqlanmadi", description: errText(e), variant: "destructive" }) }
-  }, [pomDuration, applyUser, toast])
-
-  useEffect(() => {
-    if (!(pomRunning && pomLeft > 0)) { if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null } return }
-    timerRef.current = setInterval(() => {
-      setPomLeft((prev) => {
-        const next = prev - 1
-        localStorage.setItem(`timer_${userRef.current.id}`, JSON.stringify({ timeLeft: next, isRunning: next > 0, duration: pomDuration }))
-        if (next <= 0) queueMicrotask(handleTimerComplete)
-        return Math.max(0, next)
-      })
-    }, 1000)
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [pomRunning, pomDuration, handleTimerComplete]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onPomodoroChange = (isRunning: boolean, timeLeft: number, duration?: number) => {
-    setPomRunning(isRunning); setPomLeft(timeLeft); if (duration !== undefined) setPomDuration(duration)
-    localStorage.setItem(`timer_${currentUser.id}`, JSON.stringify({ timeLeft, isRunning, duration: duration || pomDuration }))
-  }
-  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`
+  const fmt = (ms: number) => { const t = Math.ceil(ms / 1000); return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}` }
 
   // ── Odatlar (barcha o'zgarishlar serverga yuboriladi; mijoz XPni hisoblamaydi) ──
   const addHabit = async (habit: Habit) => {
@@ -203,7 +177,7 @@ export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps)
       case "habits": return <HabitsPage habits={habits} plannedCount={plannedHabits.length} language={language} onAdd={() => setShowAdd(true)} onTemplates={() => setShowTemplates(true)} onPlanned={() => setShowPlanned(true)} onDelete={deleteHabit} onUpdateDay={updateDay} />
       case "planner": return <PlannerPage timezone={currentUser.timezone} autoOpen={plannerAutoOpen} />
       case "tasks": return <TasksPage currentUser={currentUser} onBack={back} language={language} />
-      case "pomodoro": return <PomodoroPage language={language} onBack={back} userId={currentUser.id} isTimerRunning={pomRunning} timerTimeLeft={pomLeft} timerDuration={pomDuration} onTimerStateChange={onPomodoroChange} pomodoroData={currentUser.pomodoroData} />
+      case "pomodoro": return <PomodoroPage pomodoro={pom} pomodoroData={currentUser.pomodoroData} />
       case "statistics": return <StatisticsView user={currentUser} />
       case "leaderboard": return <LeaderboardView />
       case "challenges": return <ChallengesView user={currentUser} onUserChange={applyUser} />
@@ -221,7 +195,7 @@ export function MainApp({ currentUser, setCurrentUser, onLogout }: MainAppProps)
       {anim && <AchievementAnimation type={anim} />}
       <AppShell page={page} onNavigate={(p) => { if (p !== "planner") setPlannerAutoOpen(false); navigate(p) }} isDark={isDark} onToggleTheme={toggleTheme} onLogout={onLogout} onAdmin={() => location.assign("/admin")}
         user={{ name: displayName, level: calculateLevel(currentUser.xpData?.totalXP || 0), avatarUrl: currentUser.avatarUrl, isAdmin: !!currentUser.isAdmin }}
-        pomodoro={{ running: pomRunning, label: fmt(pomLeft) }} badges={{ community: hasNewPin, feedback: hasNewReply }}>
+        pomodoro={{ running: !!pom.active, label: fmt(pom.remainingMs) }} badges={{ community: hasNewPin, feedback: hasNewReply }}>
         {content}
       </AppShell>
       {showTemplates && <HabitTemplatesModal language={language} onClose={() => setShowTemplates(false)} onAdd={(h) => { addHabit(h); setShowTemplates(false) }} />}

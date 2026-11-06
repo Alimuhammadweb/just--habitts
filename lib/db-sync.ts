@@ -76,25 +76,6 @@ export async function deleteHabit(userId: number, habitId: number): Promise<void
   }
 }
 
-interface PomodoroSession {
-  id: number
-  date: string
-  count: number
-}
-
-// Pomodoro saqlash
-export async function savePomodoro(userId: number, session: PomodoroSession): Promise<void> {
-  const res = await apiFetch("/api/pomodoro", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, session }),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }))
-    throw new Error(err.error || `savePomodoro xato: ${res.status}`)
-  }
-}
-
 // Barcha foydalanuvchilarni olish - faqat server (PostgreSQL)
 let cachedUsers: User[] | null = null
 let lastFetchTime = 0

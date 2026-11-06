@@ -280,6 +280,8 @@ export function userTimezone(u: { timezone?: string | null } | null | undefined)
   return resolveTimezone(u?.timezone ?? undefined)
 }
 
+class HookAbort extends Error {}
+
 /**
  * Optimistik parallelizm nazorati bilan o'qish-o'zgartirish-yozish.
  * `rev` ustuni mos kelmasa (boshqa so'rov oldinroq yozgan), yozuv rad etiladi
@@ -289,7 +291,9 @@ export async function mutateUser<T>(
   userId: number,
   fn: (user: UserDoc) => { user: UserDoc; result: T } | null,
   retries = 12,
-): Promise<{ found: false } | { found: true; changed: boolean; user: UserDoc; result: T | null }> {
+  /** Ixtiyoriy: o'sha tranzaksiya ichida bajariladi. `false` qaytarsa — butun yozuv bekor qilinadi (rollback), `aborted: true` qaytadi. */
+  hook?: (tx: PrismaNs.TransactionClient) => Promise<boolean>,
+): Promise<{ found: false } | { found: true; changed: boolean; user: UserDoc; result: T | null; aborted?: boolean }> {
   for (let attempt = 0; attempt < retries; attempt++) {
     const doc = await findUserById(userId)
     if (!doc) return { found: false }
@@ -300,15 +304,22 @@ export async function mutateUser<T>(
     if (!hasChanges(p)) return { found: true, changed: false, user: doc, result: out.result }
 
     const rev = doc._rev ?? 0
-    const ok = await db().$transaction(async (tx) => {
-      const claimed = await tx.user.updateMany({
-        where: { id: big(userId), rev },
-        data: { ...toDbCols(p.scalars), rev: { increment: 1 } } as never,
-      })
-      if (claimed.count !== 1) return false
-      await writeChanges(tx, userId, doc, out.user, p)
-      return true
-    }, { timeout: 20_000, maxWait: 10_000 })
+    let ok: boolean
+    try {
+      ok = await db().$transaction(async (tx) => {
+        const claimed = await tx.user.updateMany({
+          where: { id: big(userId), rev },
+          data: { ...toDbCols(p.scalars), rev: { increment: 1 } } as never,
+        })
+        if (claimed.count !== 1) return false
+        await writeChanges(tx, userId, doc, out.user, p)
+        if (hook && !(await hook(tx))) throw new HookAbort()
+        return true
+      }, { timeout: 20_000, maxWait: 10_000 })
+    } catch (e) {
+      if (e instanceof HookAbort) return { found: true, changed: false, user: doc, result: null, aborted: true }
+      throw e
+    }
 
     if (ok) return { found: true, changed: true, user: { ...out.user, _rev: rev + 1 }, result: out.result }
     // Parallel so'rovlar bir-birini bosib o'tmasligi uchun tasodifiy kutish (jitter)

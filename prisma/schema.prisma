@@ -78,6 +78,8 @@ model User {
   habits              Habit[]
   xpHistory           XpHistory[]
   pomodoroSessions    PomodoroSession[]
+  pomodoroSettings    PomodoroSettings?
+  pomodoroRuns        PomodoroRun[]
   activeChallenges    ActiveChallenge[]
   weeklyTasks         WeeklyTask[]
   refreshTokens       RefreshToken[]
@@ -155,6 +157,43 @@ model PomodoroSession {
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
+}
+
+// Foydalanuvchining Pomodoro sozlamalari (bitta foydalanuvchiga bitta qator). Qator yo'q bo'lsa — standart qiymatlar.
+model PomodoroSettings {
+  userId          BigInt   @id
+  focusMin        Int      @default(25)
+  shortBreakMin   Int      @default(5)
+  longBreakMin    Int      @default(15)
+  // Har nechta fokus seansidan keyin uzoq tanaffus taklif qilinadi
+  longBreakEvery  Int      @default(4)
+  updatedAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Bitta taymer ishga tushirilishi (fokus yoki tanaffus). Vaqt serverda TIMESTAMP bo'yicha hisoblanadi:
+//   qolgan vaqt = plannedSeconds*1000 - elapsedMs - (status=running ? hozir - resumedAt : 0)
+// status: running | paused | completed | cancelled. Faqat `completed` + mode=focus statistikaga kiradi,
+// va bu o'tish bitta atomik (qator holatiga bog'langan) UPDATE orqali bir marta amalga oshadi.
+model PomodoroRun {
+  id             String    @id @default(cuid())
+  userId         BigInt
+  mode           String    // focus | short_break | long_break
+  status         String    // running | paused | completed | cancelled
+  plannedSeconds Int
+  startedAt      DateTime
+  resumedAt      DateTime? // hozirgi ishlayotgan bo'lakning boshlanishi (pauzada null)
+  pausedAt       DateTime?
+  elapsedMs      Int       @default(0) // oldingi bo'laklarda o'tgan vaqt
+  endedAt        DateTime? // tugash yoki bekor qilish vaqti
+  credited       Boolean   @default(false) // statistikaga yozilganmi (faqat yakunlangan fokus)
+  createdAt      DateTime  @default(now())
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, endedAt(sort: Desc)])
 }
 
 model ActiveChallenge {

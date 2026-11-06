@@ -2,6 +2,7 @@
 import { authFetch } from "@/lib/api-client"
 import type { User } from "@/types/user"
 import type { ChallengeView } from "@/lib/server/challenge-engine"
+import type { PomodoroMode, PomodoroSettingsData, PomodoroState } from "@/lib/pomodoro"
 
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) { super(message) }
@@ -33,7 +34,15 @@ export const updateProfile = (updates: Partial<User>) => call<{ success: boolean
 export const fetchMe = (id: number) => call<User>(`/api/users/${id}`)
 
 // ── Pomodoro ──
-export const completePomodoro = () => call<{ user: User }>("/api/pomodoro", { method: "POST", body: JSON.stringify({ session: { count: 1 } }) })
+// Taymer holati va statistika serverda (PostgreSQL). Mijoz faqat amal yuboradi; davomiylik va hisobni server belgilaydi.
+export interface PomodoroResponse { state: PomodoroState; user?: User; completed?: { id: string; mode: PomodoroMode; credited: boolean } }
+export type PomodoroAction =
+  | { action: "start"; mode: PomodoroMode }
+  | { action: "pause" | "resume" | "reset" | "complete"; id: string }
+export const pomodoroGet = () => call<PomodoroResponse>("/api/pomodoro")
+export const pomodoroAct = (body: PomodoroAction) => call<PomodoroResponse>("/api/pomodoro", { method: "POST", body: JSON.stringify(body) })
+export const pomodoroSaveSettings = (patch: Partial<PomodoroSettingsData>) =>
+  call<{ settings: PomodoroSettingsData }>("/api/pomodoro/settings", { method: "PUT", body: JSON.stringify(patch) })
 
 // ── Chelenjlar ──
 export const getChallenges = () => call<{ user: User; views: ChallengeView[] }>("/api/challenges")
