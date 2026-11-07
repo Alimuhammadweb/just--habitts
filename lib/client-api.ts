@@ -16,7 +16,15 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("Tarmoq xatosi. Internetni tekshirib, qayta urinib ko'ring.", 0, "NETWORK")
   }
   const data = await res.json().catch(() => ({}))
+<<<<<<< HEAD
   if (!res.ok) throw new ApiError(data?.error || `Xato (${res.status})`, res.status, data?.code)
+=======
+  if (!res.ok) {
+    // 405 = server bu manzilga shu usulni qabul qilmadi. Odatda Vercel'dagi deploy to'liq emas/eski ekanini bildiradi — aniq so'rovni ko'rsatamiz.
+    if (res.status === 405) throw new ApiError(`Server bu so'rovni qabul qilmadi: ${(init?.method || "GET").toUpperCase()} ${path.split("?")[0]} [405]. Vercel'da to'liq va oxirgi deploy ishlayotganini tekshiring.`, 405, "METHOD_NOT_ALLOWED")
+    throw new ApiError(data?.error || `Xato (${res.status})`, res.status, data?.code)
+  }
+>>>>>>> origin/main
   return data as T
 }
 

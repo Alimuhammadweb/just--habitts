@@ -19,6 +19,10 @@ export async function api<T>(path: string, init?: RequestInit & { json?: unknown
     throw new AdminApiError("Tarmoq xatosi. Internetni tekshiring.", 0)
   }
   const data = await res.json().catch(() => ({}))
+<<<<<<< HEAD
+=======
+  if (res.status === 405) throw new AdminApiError(`Server bu so'rovni qabul qilmadi: ${(rest.method || "GET").toUpperCase()} ${path.split("?")[0]} [405]. Vercel'da to'liq va oxirgi deploy ishlayotganini tekshiring.`, 405)
+>>>>>>> origin/main
   if (!res.ok) throw new AdminApiError(data?.error || `Xato (${res.status})`, res.status)
   return data as T
 }
