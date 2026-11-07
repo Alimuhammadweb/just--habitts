@@ -17,9 +17,19 @@ Migratsiya (faqat qo'shadi, hech narsani o'chirmaydi): `npx prisma migrate deplo
 
 ## 2. BotFather: Launch tugmasi
 Kod bot ichida emas (botni o'zgartirmaymiz) — Mini App havolasi BotFather'da sozlanadi:
+<<<<<<< HEAD
 1. `/mybots` → botingiz → **Bot Settings → Configure Mini App** → **Enable/Edit** (bu "Asosiy Mini App" — `t.me/<bot>?startapp=…` havolasi faqat shunda ishlaydi).
    **Muhim:** faqat **Menu Button** sozlangan bo'lsa, Profil → "Telegram'ni ulash" havolasi Mini App'ni ochmaydi (faqat bot chatini ochadi, ulash tokeni yo'qoladi) va keyin menyudan kirsangiz YANGI bo'sh hisob ochiladi.
    Agar alohida Mini App `/newapp` bilan yaratilgan bo'lsa, uning short name'ini `TELEGRAM_MINIAPP_SHORT_NAME` ga yozing.
+=======
+<<<<<<< HEAD
+1. `/mybots` → botingiz → **Bot Settings → Configure Mini App** (yoki **Menu Button**) → **Enable/Edit**.
+=======
+1. `/mybots` → botingiz → **Bot Settings → Configure Mini App** → **Enable/Edit** (bu "Asosiy Mini App" — `t.me/<bot>?startapp=…` havolasi faqat shunda ishlaydi).
+   **Muhim:** faqat **Menu Button** sozlangan bo'lsa, Profil → "Telegram'ni ulash" havolasi Mini App'ni ochmaydi (faqat bot chatini ochadi, ulash tokeni yo'qoladi) va keyin menyudan kirsangiz YANGI bo'sh hisob ochiladi.
+   Agar alohida Mini App `/newapp` bilan yaratilgan bo'lsa, uning short name'ini `TELEGRAM_MINIAPP_SHORT_NAME` ga yozing.
+>>>>>>> origin/main
+>>>>>>> origin/main
 2. URL: `https://just-habitts-steel.vercel.app` (HTTPS majburiy, `/` bilan tugasa ham bo'ladi).
 3. Shundan so'ng bot profilida "Open app" / chat tagida menyu tugmasi chiqadi.
 Eski `/setdomain` (Login Widget uchun) endi kerak emas.
