@@ -5,6 +5,9 @@ import { AuthPage } from "@/components/auth-page"
 import { MainApp } from "@/components/main-app"
 import type { User } from "@/types/user"
 import { authFetch } from "@/lib/api-client"
+import { TelegramAuthScreen, type TelegramScreenState } from "@/components/telegram-auth-screen"
+import { getTelegramWebApp, readTelegramInitData, telegramUiLanguage } from "@/lib/telegram-webapp"
+import type { Language } from "@/types/language"
 
 const AUTH_ERRORS: Record<string, string> = {
   google_unavailable: "Google bilan kirish bu serverda sozlanmagan.",
@@ -24,6 +27,40 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [authNotice, setAuthNotice] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  // Telegram Mini App ichida ochilganmi va avtorizatsiya holati (xato / ulashni tasdiqlash / chiqib ketgan)
+  const [inTelegram, setInTelegram] = useState(false)
+  const [tgScreen, setTgScreen] = useState<TelegramScreenState | null>(null)
+  const [tgBusy, setTgBusy] = useState(false)
+
+  const tgLanguage = (): Language => {
+    try { const s = localStorage.getItem("habit-language"); if (s === "uz" || s === "ru" || s === "en") return s } catch { /* e'tiborsiz */ }
+    return telegramUiLanguage() ?? "uz"
+  }
+
+  // Telegram Mini App: XOM initData serverga yuboriladi, imzo serverda tekshiriladi (bot tokeni bilan). Mijoz hech qachon
+  // "men falonchiman" deya ayta olmaydi — initDataUnsafe/id/ism yuborilmaydi. Muvaffaqiyatli bo'lsa server HttpOnly cookie qo'yadi.
+  async function telegramSignIn(confirmLink = false): Promise<void> {
+    const initData = readTelegramInitData()
+    if (!initData) { setTgScreen({ kind: "error", message: "Telegram ma'lumotlari topilmadi. Ilovani Telegram'dagi bot orqali oching.", code: "NO_INIT_DATA" }); return }
+    setTgBusy(true)
+    try {
+      const res = await fetch("/api/auth/telegram", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initData, confirmLink }), cache: "no-store" })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.linkRequest) { setTgScreen({ kind: "confirmLink", ...data.linkRequest }); return }
+      if (res.ok) {
+        try { sessionStorage.removeItem("tgSignedOut") } catch { /* e'tiborsiz */ }
+        // Yangi foydalanuvchi uchun interfeys tili Telegram tilidan (faqat ko'rinish; autentifikatsiyaga aloqasi yo'q)
+        try { if (!localStorage.getItem("habit-language")) { const l = telegramUiLanguage(); if (l) localStorage.setItem("habit-language", l) } } catch { /* e'tiborsiz */ }
+        setTgScreen(null)
+        handleSetUser(migrateUserData(data as User))
+        if ((data as User).isAdmin) location.assign("/admin")
+        return
+      }
+      setTgScreen({ kind: "error", message: data?.error || `Xato (${res.status})`, code: data?.code })
+    } catch {
+      setTgScreen({ kind: "error", message: "Tarmoq xatosi. Internetni tekshirib, qayta urinib ko'ring.", code: "NETWORK" })
+    } finally { setTgBusy(false) }
+  }
 
   useEffect(() => {
     // localStorage'da faqat foydalanuvchi ID'si saqlanadi (kim tizimga kirgan).
@@ -32,6 +69,18 @@ export default function Home() {
     // va eskirgan/buzilgan localStorage nusxasi sessiyani buzmaydi.
     async function restoreSession() {
       try {
+        // Telegram Mini App ichida bo'lsak, sessiya HAR DOIM Telegram imzosi bilan aniqlanadi (cookie/localStorage'dagi eski
+        // foydalanuvchiga ishonilmaydi) — shu qurilmada boshqa Telegram akkaunt ochsa ham bir-birining ma'lumotini ko'rmaydi.
+        if (readTelegramInitData()) {
+          setInTelegram(true)
+          try { const tg = getTelegramWebApp(); tg?.ready(); tg?.expand() } catch { /* e'tiborsiz */ }
+          let signedOut = false
+          try { signedOut = sessionStorage.getItem("tgSignedOut") === "1" } catch { /* e'tiborsiz */ }
+          if (signedOut) setTgScreen({ kind: "signedOut" })
+          else await telegramSignIn(false)
+          return
+        }
+
         let userId = localStorage.getItem("sessionUserId")
 
         // Eski versiyada butun user obyekti sessionStorage/localStorage'da
@@ -140,6 +189,11 @@ export default function Home() {
     localStorage.removeItem("sessionUser")
     sessionStorage.removeItem("sessionUser")
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {})
+    // Mini App ichida chiqsak, qayta yuklanganda darhol avtomatik kirib ketmasligi uchun belgi qo'yamiz
+    if (readTelegramInitData()) {
+      try { sessionStorage.setItem("tgSignedOut", "1") } catch { /* e'tiborsiz */ }
+      setTgScreen({ kind: "signedOut" })
+    }
   }
 
   if (isLoading) {
@@ -149,7 +203,7 @@ export default function Home() {
           <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center text-2xl">⚡</div>
         </div>
-        <p className="text-sm text-muted-foreground animate-pulse">Just Habits yuklanmoqda...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">{inTelegram ? "Telegram orqali kirilmoqda..." : "Just Habits yuklanmoqda..."}</p>
       </div>
     )
   }
@@ -161,6 +215,17 @@ export default function Home() {
         setCurrentUser={handleSetUser}
         onLogout={handleLogout}
       />
+    )
+  }
+
+  if (tgScreen) {
+    return (
+      <TelegramAuthScreen state={tgScreen} language={tgLanguage()} busy={tgBusy}
+        onRetry={() => { void telegramSignIn(false) }}
+        onConfirm={() => { void telegramSignIn(true) }}
+        onCancel={() => { try { getTelegramWebApp()?.close() } catch { /* e'tiborsiz */ } }}
+        onSignIn={() => { try { sessionStorage.removeItem("tgSignedOut") } catch { /* e'tiborsiz */ } void telegramSignIn(false) }}
+        onClose={() => { try { getTelegramWebApp()?.close() } catch { /* e'tiborsiz */ } }} />
     )
   }
 

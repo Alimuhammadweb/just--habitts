@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Check, Crown, ImageOff, Link2, Loader2, Lock, Mail, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { TelegramLoginButton, type TelegramAuthPayload } from "@/components/telegram-login-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -93,6 +92,7 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
   const [background, setBackground] = useState(currentUser.selectedBackground || "default")
   const [saving, setSaving] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
+  const [telegramBusy, setTelegramBusy] = useState(false)
   const [img, setImg] = useState<ImgState>({ status: savedAvatar ? "ok" : "empty" })
   const [googleEnabled, setGoogleEnabled] = useState(false)
   const [telegramBot, setTelegramBot] = useState<string | null>(null)
@@ -175,15 +175,17 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
     else if (avatarTyped) updates.avatarUrl = avatarInput.trim()
     try { await onUpdateProfile(updates); setAvatarRemoved(false) } finally { setSaving(false) }
   }
-  // Telegram'ni ulash: vidjet imzolangan ma'lumot beradi, server tekshirib hisobga bog'laydi
-  async function linkTelegram(payload: TelegramAuthPayload) {
+  // Telegram'ni ulash: server imzolangan, bir martalik havola beradi; u Mini App'ni ochadi va ulash u yerda (Telegram imzosi + tasdiq bilan) bajariladi
+  async function linkTelegram() {
+    setTelegramBusy(true)
     try {
-      const res = await authFetch("/api/auth/telegram/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      const res = await authFetch("/api/auth/telegram/link-token", { method: "POST" })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error || "Xato")
-      toast({ title: tr("Telegram hisobi ulandi", "Аккаунт Telegram подключён", "Telegram account linked") })
-      setTimeout(() => location.reload(), 900) // yangilangan holatni serverdan qayta olish
+      if (!res.ok || !data.url) throw new Error(data.error || "Xato")
+      toast({ title: tr("Telegram ochilmoqda", "Открываем Telegram", "Opening Telegram"), description: tr("Ochilgan oynada ulashni tasdiqlang.", "Подтвердите подключение в открывшемся окне.", "Confirm the link in the window that opens.") })
+      location.assign(data.url)
     } catch (e) { toast({ title: tr("Telegram ulanmadi", "Не удалось подключить Telegram", "Could not link Telegram"), description: (e as Error).message, variant: "destructive" }) }
+    finally { setTelegramBusy(false) }
   }
 
   async function linkGoogle() {
@@ -293,7 +295,7 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
                   <dt className="text-muted-foreground">Telegram</dt>
                   <dd>{currentUser.telegramLinked
                     ? <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400"><Check className="size-3.5" />{tr("Ulangan", "Подключён", "Linked")}</span>
-                    : telegramBot && <TelegramLoginButton botUsername={telegramBot} onAuth={linkTelegram} />}</dd>
+                    : telegramBot && <Button type="button" variant="outline" size="sm" onClick={linkTelegram} disabled={telegramBusy}>{telegramBusy && <Loader2 className="animate-spin" />}{tr("Telegram'ni ulash", "Подключить Telegram", "Link Telegram")}</Button>}</dd>
                 </div>)}
             </dl>
           </Section>

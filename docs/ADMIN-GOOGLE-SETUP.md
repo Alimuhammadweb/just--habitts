@@ -58,10 +58,5 @@ Admins can also be demoted from **/admin → Foydalanuvchilar**.
 5. `npm run dev` da `APP_URL` e'tiborsiz qoladi (brauzer manzili ishlatiladi). `npm run build && npm start` bilan lokal ishlatsangiz: `APP_URL=http://localhost:XXXX` va `EXTRA_ALLOWED_ORIGIN=http://localhost:XXXX` qo'ying.
 6. Google xato bersa, server terminalida `[Google] redirect_uri = ...` qatori chiqadi — Console'dagi manzil bilan harfma-harf solishtiring.
 
-## 7. Telegram bilan kirish (Telegram Login Widget)
-1. **Migratsiya:** `npx prisma migrate deploy` (yangi: `20261026000000_telegram_login` — faqat `User.telegramId` ustuni qo'shadi).
-2. **BotFather** → `/setdomain` → botingizni tanlang → `just-habitts-steel.vercel.app` (`https://` siz).
-3. **Vercel → Settings → Environment Variables:** `TELEGRAM_BOT_TOKEN` (BotFather tokeni) va `TELEGRAM_BOT_USERNAME` (`@` siz). Redeploy.
-4. Tugma `localhost` da ishlamaydi (Telegram faqat /setdomain qilingan https domenni qabul qiladi). Sinash — deploy qilingan saytda.
-5. Telegram hisobida haqiqiy email yo'q (ichki `tg_<id>@telegram.invalid` ishlatiladi); mavjud hisobga Profil sahifasidagi "Telegram" qatoridan ulanadi.
-- Imzo serverda (bot tokeni bilan HMAC-SHA256) tekshiriladi, 10 daqiqadan eski va qayta ishlatilgan ma'lumot rad etiladi.
+## 7. Telegram bilan kirish (Mini App)
+Eski Login Widget (kod yuboriladigan usul) olib tashlandi. Yangi tizim: [`TELEGRAM_MINIAPP.md`](TELEGRAM_MINIAPP.md).

@@ -45,7 +45,7 @@ const PUBLIC_PATHS: { path: string; methods?: string[] }[] = [
   { path: "/api/auth/config" },
   { path: "/api/auth/google/start", methods: ["GET"] }, // Google'ga yo'naltirish
   { path: "/api/auth/google/callback", methods: ["GET"] }, // Google qaytaradigan manzil (state/PKCE o'zida tekshiriladi)
-  { path: "/api/auth/telegram", methods: ["POST"] }, // Telegram Login Widget (imzo serverda tekshiriladi)
+  { path: "/api/auth/telegram", methods: ["POST"] }, // Telegram Mini App initData (imzo serverda tekshiriladi)
   { path: "/api/auth/forgot", methods: ["POST"] },
   { path: "/api/auth/reset", methods: ["POST"] },
   { path: "/api/users", methods: ["POST"] }, // ro'yxatdan o'tish

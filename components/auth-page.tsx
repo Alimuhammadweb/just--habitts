@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { TelegramLoginButton, type TelegramAuthPayload } from "@/components/telegram-login-button"
 import { motion, useReducedMotion } from "framer-motion"
-import { CalendarDays, Check, Eye, EyeOff, Flame, Loader2, MailCheck, Trophy, Zap } from "lucide-react"
+import { CalendarDays, Check, Eye, EyeOff, Flame, Loader2, MailCheck, Send, Trophy, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -72,18 +71,6 @@ export function AuthPage({ onLogin, notice }: { onLogin: (user: User) => void; n
     const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
     const data = await res.json().catch(() => ({}))
     return { res, data }
-  }
-
-  // Telegram vidjeti imzolangan ma'lumot qaytaradi — uni serverda tekshirtiramiz (brauzerga ishonilmaydi)
-  async function telegramLogin(payload: TelegramAuthPayload) {
-    setErrors({}); setInfo(null)
-    try {
-      const { res, data } = await post("/api/auth/telegram", payload)
-      if (!res.ok) { setErrors({ form: data.error || "Telegram bilan kirib bo'lmadi." }); return }
-      onLogin(data as User)
-    } catch {
-      setErrors({ form: "Tarmoq xatosi. Internetni tekshirib qayta urinib ko'ring." })
-    }
   }
 
   async function login() {
@@ -191,7 +178,14 @@ export function AuthPage({ onLogin, notice }: { onLogin: (user: User) => void; n
                   Google bilan davom etish
                 </a>
               </Button></>)}
-              {telegramBot && <div className={googleEnabled ? "mt-3" : ""}><TelegramLoginButton botUsername={telegramBot} onAuth={telegramLogin} /></div>}
+              {/* Telegram bilan kirish — faqat Mini App ichida, kod/SMS siz: ilovani bot orqali oching, hisob avtomatik ochiladi */}
+              {telegramBot && (
+                <div className={googleEnabled ? "mt-3" : ""}>
+                  <Button asChild type="button" variant="outline" size="lg" className="w-full h-11">
+                    <a href={`https://t.me/${telegramBot}`} target="_blank" rel="noopener noreferrer"><Send className="size-4" />Telegram'da ochish</a>
+                  </Button>
+                  <p className="mt-2 text-center text-xs text-muted-foreground">Telegram orqali kirish uchun Just Habits'ni Telegram'dagi bot orqali oching — kod kiritish shart emas.</p>
+                </div>)}
             </>
           )}
 

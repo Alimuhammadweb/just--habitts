@@ -131,6 +131,30 @@ export async function verifyOAuthStateToken(token: string): Promise<OAuthStatePa
   }
 }
 
+// ---------- Telegram ulash tokeni ----------
+// Kirgan foydalanuvchi profilidan "Telegram'ni ulash"ni bosganda yaratiladi; Mini App havolasiga start_param sifatida qo'shiladi.
+// Qisqa muddatli (10 daqiqa) va bir martalik (jti server tomonida ishlatilganda belgilanadi).
+export const TELEGRAM_LINK_MAX_AGE_SECONDS = 60 * 10
+
+export async function createTelegramLinkToken(uid: number, jti: string): Promise<string> {
+  return new SignJWT({ uid, jti, typ: "tg_link" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${TELEGRAM_LINK_MAX_AGE_SECONDS}s`)
+    .sign(getSecretKey())
+}
+
+export async function verifyTelegramLinkToken(token: string): Promise<{ uid: number; jti: string } | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecretKey())
+    if (payload.typ !== "tg_link") return null
+    if (typeof payload.uid !== "number" || !Number.isSafeInteger(payload.uid) || payload.uid <= 0 || typeof payload.jti !== "string") return null
+    return { uid: payload.uid, jti: payload.jti }
+  } catch {
+    return null
+  }
+}
+
 export const OAUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

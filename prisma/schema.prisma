@@ -29,6 +29,13 @@ model User {
   googleSub           String?  @unique
   // Telegram Login: Telegram foydalanuvchisining o'zgarmas raqamli ID'si (username emas). Ulanmaganlarda null.
   telegramId          BigInt?  @unique
+  // Telegram Mini App: oxirgi kirishda Telegram bergan profil ma'lumotlari (faqat ko'rsatish uchun, kirish faqat telegramId orqali).
+  // Ilovadagi `name`/`firstName`/`avatarUrl` ga tegmaydi — foydalanuvchi o'z profilini o'zgartirgan bo'lishi mumkin.
+  telegramUsername     String?
+  telegramFirstName    String?
+  telegramLastName     String?
+  telegramPhotoUrl     String?
+  telegramLanguageCode String?
   // Oxirgi muvaffaqiyatli kirish (admin monitoringi uchun)
   lastLoginAt         DateTime?
 
