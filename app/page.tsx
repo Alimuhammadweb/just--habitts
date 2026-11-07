@@ -48,6 +48,9 @@ export default function Home() {
       const data = await res.json().catch(() => ({}))
       if (res.ok && data.linkRequest) { setTgScreen({ kind: "confirmLink", ...data.linkRequest }); return }
       if (res.ok) {
+        // Sessiya cookie'si haqiqatan saqlandimi? (ba'zi WebView'lar cookie'ni bloklaydi — aks holda keyingi so'rovlar jimgina 401 beradi)
+        const probe = await fetch("/api/auth/me", { cache: "no-store" }).catch(() => null)
+        if (!probe || !probe.ok) { setTgScreen({ kind: "error", message: `Kirish tasdiqlandi, lekin sessiya cookie'si saqlanmadi [${probe?.status ?? "tarmoq"}]. Telegram'ni yangilab qayta urinib ko'ring.`, code: "COOKIES_BLOCKED" }); return }
         try { sessionStorage.removeItem("tgSignedOut") } catch { /* e'tiborsiz */ }
         // Yangi foydalanuvchi uchun interfeys tili Telegram tilidan (faqat ko'rinish; autentifikatsiyaga aloqasi yo'q)
         try { if (!localStorage.getItem("habit-language")) { const l = telegramUiLanguage(); if (l) localStorage.setItem("habit-language", l) } } catch { /* e'tiborsiz */ }
@@ -56,7 +59,7 @@ export default function Home() {
         if ((data as User).isAdmin) location.assign("/admin")
         return
       }
-      setTgScreen({ kind: "error", message: data?.error || `Xato (${res.status})`, code: data?.code })
+      setTgScreen({ kind: "error", message: `${data?.error || "Xato"} [${res.status}${data?.code ? " " + data.code : ""}]`, code: data?.code })
     } catch {
       setTgScreen({ kind: "error", message: "Tarmoq xatosi. Internetni tekshirib, qayta urinib ko'ring.", code: "NETWORK" })
     } finally { setTgBusy(false) }
