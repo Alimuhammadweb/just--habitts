@@ -75,6 +75,17 @@ function parseImageUrl(raw: string): "empty" | "invalid" | "ok" {
   try { const u = new URL(v); return u.protocol === "https:" || u.protocol === "http:" ? "ok" : "invalid" } catch { return "invalid" }
 }
 
+// MUHIM: Section komponenti ProfilePage ICHIDA e'lon qilinmasligi kerak. Ichkarida bo'lsa, har harf yozilganda (state o'zgarib, ProfilePage qayta chizilganda)
+// u yangi komponent turiga aylanadi va ichidagi <Input> DOM'dan o'chib qayta yaratiladi — fokus va klaviatura yo'qoladi (ayniqsa Telegram/mobil WebView'da).
+function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
+      <div className="mb-4"><h2 className="text-sm font-semibold">{title}</h2>{hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}</div>
+      {children}
+    </section>
+  )
+}
+
 export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = "uz" }: ProfilePageProps) {
   const { toast } = useToast()
   const tr = (uz: string, ru: string, en: string) => (language === "ru" ? ru : language === "en" ? en : uz)
@@ -93,6 +104,7 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
   const [saving, setSaving] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
   const [telegramBusy, setTelegramBusy] = useState(false)
+  const [telegramUrl, setTelegramUrl] = useState<string | null>(null)
   const [img, setImg] = useState<ImgState>({ status: savedAvatar ? "ok" : "empty" })
   const [googleEnabled, setGoogleEnabled] = useState(false)
   const [telegramBot, setTelegramBot] = useState<string | null>(null)
@@ -181,7 +193,8 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
     try {
       const res = await authFetch("/api/auth/telegram/link-token", { method: "POST" })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data.url) throw new Error(data.error || "Xato")
+      if (!res.ok || !data.url) throw new Error(data.error || `Xato (${res.status})`)
+      setTelegramUrl(data.url) // zaxira: avtomatik ochilmasa, foydalanuvchi havolani o'zi bosadi
       toast({ title: tr("Telegram ochilmoqda", "Открываем Telegram", "Opening Telegram"), description: tr("Ochilgan oynada ulashni tasdiqlang.", "Подтвердите подключение в открывшемся окне.", "Confirm the link in the window that opens.") })
       location.assign(data.url)
     } catch (e) { toast({ title: tr("Telegram ulanmadi", "Не удалось подключить Telegram", "Could not link Telegram"), description: (e as Error).message, variant: "destructive" }) }
@@ -198,12 +211,6 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
     } catch (e) { toast({ title: tr("Google ulanmadi", "Не удалось подключить Google", "Could not link Google"), description: (e as Error).message, variant: "destructive" }); setGoogleBusy(false) }
   }
 
-  const Section = ({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) => (
-    <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
-      <div className="mb-4"><h2 className="text-sm font-semibold">{title}</h2>{hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}</div>
-      {children}
-    </section>
-  )
   const pickCls = (active: boolean, ok: boolean) => cn("relative rounded-lg border p-2 text-center transition-colors focus-visible:ring-2 focus-visible:ring-ring", active ? "border-primary bg-primary/10" : ok ? "border-border hover:border-primary/50" : "border-border opacity-40 cursor-not-allowed")
 
   const avatarMsg =
@@ -295,7 +302,11 @@ export function ProfilePage({ onClose, currentUser, onUpdateProfile, language = 
                   <dt className="text-muted-foreground">Telegram</dt>
                   <dd>{currentUser.telegramLinked
                     ? <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400"><Check className="size-3.5" />{tr("Ulangan", "Подключён", "Linked")}</span>
-                    : telegramBot && <Button type="button" variant="outline" size="sm" onClick={linkTelegram} disabled={telegramBusy}>{telegramBusy && <Loader2 className="animate-spin" />}{tr("Telegram'ni ulash", "Подключить Telegram", "Link Telegram")}</Button>}</dd>
+                    : telegramBot && (
+                      <div className="flex flex-col items-end gap-1.5">
+                        <Button type="button" variant="outline" size="sm" onClick={linkTelegram} disabled={telegramBusy}>{telegramBusy && <Loader2 className="animate-spin" />}{tr("Telegram'ni ulash", "Подключить Telegram", "Link Telegram")}</Button>
+                        {telegramUrl && <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline underline-offset-2">{tr("Telegram ochilmadimi? Shu yerni bosing", "Telegram не открылся? Нажмите здесь", "Telegram didn't open? Tap here")}</a>}
+                      </div>)}</dd>
                 </div>)}
             </dl>
           </Section>
