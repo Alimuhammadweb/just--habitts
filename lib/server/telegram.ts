@@ -9,7 +9,10 @@ import { createHmac, timingSafeEqual } from "crypto"
 // Bot tokeni faqat serverda turadi (NEXT_PUBLIC_ bilan boshlanmaydi).
 
 export const telegramBotToken = () => process.env.TELEGRAM_BOT_TOKEN || ""
-export const telegramBotUsername = () => (process.env.TELEGRAM_BOT_USERNAME || process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "").replace(/^@/, "")
+// Faqat username kerak, lekin `@JustHabittsBot` yoki `https://t.me/JustHabittsBot` yozib yuborilsa ham to'g'ri ajratib olamiz.
+export const telegramBotUsername = () =>
+  (process.env.TELEGRAM_BOT_USERNAME || process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "")
+    .trim().replace(/^(https?:\/\/)?(t\.me|telegram\.me)\//i, "").replace(/^@/, "").split(/[/?#]/)[0]
 export const telegramConfigured = () => Boolean(telegramBotToken() && telegramBotUsername())
 
 /** initData qancha vaqt yaroqli (auth_date'dan boshlab). Standart 24 soat; TELEGRAM_INITDATA_MAX_AGE_SECONDS bilan o'zgartiriladi (60 s … 7 kun). */
